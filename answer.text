@@ -1,0 +1,20 @@
+{
+    'sale_date': '20240318', 
+    'store_code': '4089', 
+    'pos_no': '03', 
+    'seq_no': '0025', 
+    'st_code': nan, 
+    'total_qnty': 3, 
+    'total_sell_amnt': 68500, 
+    'total_dscn_amnt': 0, 
+    'total_stlmn_amnt': 68500, 
+    'trade_time': '102417', 
+    'sku_cntnt': '[{"sku_no": "0008015010023", "sku_stlmn_amnt": 2500, "sku_qnty": 1}, {"sku_no": "9300000001745", "sku_stlmn_amnt": 33000, "sku_qnty": 1}, {"sku_no": "9300000001748", "sku_stlmn_amnt": 33000, "sku_qnty": 1}]', 'cpn_cntnt': '["0", "0", "0"]', 'order_dtm': '20240318102417]'
+    }
+
+"""
+
+위와 같은 결과가 죄종적으로 나와야 한다.
+key를 기준으로 집계하면 될듯 how? 
+
+"""
