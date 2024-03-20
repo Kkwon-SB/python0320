@@ -14,7 +14,9 @@ order_df = order_df.astype({
         'total_dscn_amnt': 'int',
         'total_stlmn_amnt': 'int',
         'sku_stlmn_amnt': 'int',
-        'sku_qnty': 'int'
+        'sku_qnty': 'int',
+        'sale_date': 'str',
+        'trade_time': 'str'
     })
 
 grouped = order_df.groupby(['sale_date', 'store_code', 'pos_no', 'seq_no']).apply(
@@ -24,16 +26,18 @@ grouped = order_df.groupby(['sale_date', 'store_code', 'pos_no', 'seq_no']).appl
         'pos_no': x['pos_no'].iloc[0],
         'seq_no': x['seq_no'].iloc[0],
         'st_code': x['st_code'].iloc[0],
-        'total_qnty': x['total_qnty'].sum(),
-        'total_sell_amnt': x['total_sell_amnt'].sum(),
+        'total_qnty': x['total_qnty'].iloc[0],
+        'total_sell_amnt': x['total_sell_amnt'].iloc[0],
         'total_dscn_amnt': x['total_dscn_amnt'].sum(),
         'total_stlmn_amnt': x['total_stlmn_amnt'].iloc[0],
         'trade_time': x['trade_time'].iloc[0],
+        
         'sku_cntnt': json.dumps([{
             "sku_no": sku['sku_no'],
             "sku_stlmn_amnt": sku['sku_stlmn_amnt'],
             "sku_qnty": sku['sku_qnty']
         } for _, sku in x.iterrows()]),
+        
         'cpn_cntnt': json.dumps(list(x['cpn_no'])),
         'order_dtm': x['sale_date'].iloc[0] + x['trade_time'].iloc[0]
     }
