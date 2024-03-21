@@ -1,5 +1,5 @@
-import json
 import pandas as pd
+import json
 
 columns = [
     'sale_date',
@@ -26,191 +26,52 @@ order_df = pd.DataFrame(	[['20240318', '4089', '03', '0043', None, 2, 6100, 0, 6
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
-result_columns = [
-    'sale_date',
-    'store_code',
-    'pos_no',
-    'seq_no',
-    ##### 'st_code',
-    'total_qnty',
-    'total_sell_amnt',
-    'total_dscn_amnt',
-    'total_stlmn_amnt',
-    'sku_cntnt',
-    'cpn_cntnt',
-    'order_dtm'
-]
 
-
-order_df = order_df.drop(['st_code'], axis=1) #######
-
-order_df['sku_qnty'] = order_df['sku_qnty'].fillna(0) 
+order_df['sku_qnty'] = order_df['sku_qnty'].fillna(0)
 order_df['sku_stlmn_amnt'] = order_df['sku_stlmn_amnt'].fillna(0)
-order_df['sku_no'] = order_df['sku_no'].fillna('') 
-order_df = order_df.astype({ 
+order_df['sku_no'] = order_df['sku_no'].fillna('')
+
+order_df = order_df.astype({
         'total_qnty': 'int',
         'total_sell_amnt': 'int',
         'total_dscn_amnt': 'int',
         'total_stlmn_amnt': 'int',
         'sku_stlmn_amnt': 'int',
-        'sku_qnty': 'int'
+        'sku_qnty': 'int',
+        'sale_date': 'str', 
+        'trade_time': 'str'     
     })
 
-order_group_df = order_df.groupby(['sale_date', 'store_code', 'pos_no', 'seq_no'], as_index=False) 
-
-def to_json_custom_total(group): 
-    data = group.to_dict('records')
-    result_data = []
-
-    for datum in data:
-        result_datum = {
-            'total_qnty': datum.get('total_qnty'),
-            'total_sell_amnt': datum.get('total_sell_amnt'),
-            'total_dscn_amnt': datum.get('total_dscn_amnt'),
-            'total_stlmn_amnt': datum.get('total_stlmn_amnt')
-        }
-        result_data.append(result_datum)
-
-    return json.dumps(list(result_data))
-
-def to_json_custom_sku(group): #sku 
-    data = group.to_dict('records')
-    result_data = []
-
-    for datum in data:
-        result_datum = {
-            'sku_no': datum.get('sku_no'),
-            'sku_stlmn_amnt': datum.get('sku_stlmn_amnt'),
-            'sku_qnty': datum.get('sku_qnty')
-        }
-        result_data.append(result_datum)
-
-    return json.dumps(list(result_data))
-
-def to_json_custom_cpn(group): #쿠폰 
-    data = group.to_dict('records')
-    result_data = []
-
-    for datum in data:
-        result_data.append(datum.get('cpn_no'))
-
-    return json.dumps(list(result_data))
-
-def to_json_custom_total_qnty(group): #쿠폰
-    data = group.to_dict('records')
-    result_data = []
-
-    for datum in data:
-        result_data.append(datum.get('total_sell_amnt'))
-
-    return json.dumps(list(result_data))
-
-def to_json_custom_total_sell_amnt(group): #쿠폰
-    data = group.to_dict('records')
-    result_data = []
-
-    for datum in data:
-        result_data.append(datum.get('total_dscn_amnt'))
-
-    return json.dumps(list(result_data))
-
-def to_json_custom_total_dscn_amnt(group): #쿠폰
-    data = group.to_dict('records')
-    result_data = []
-
-    for datum in data:
-        result_data.append(datum.get('total_stlmn_amnt'))
-
-    return json.dumps(list(result_data))
-
-def to_json_custom_total_stlmn_amnt(group): #쿠폰
-    data = group.to_dict('records')
-    result_data = []
-
-    for datum in data:
-        result_data.append(datum.get('total_qnty'))
-
-    return json.dumps(list(result_data))
-
-def to_json_custom_store(group): #store 
-    data = group.to_dict('records')
-    result_data = []
-
-    for datum in data:
-        result_data.append(datum.get('store_code'))
-
-    return json.dumps(list(result_data))
-
-def to_json_custom_pos(group): #pos 
-    data = group.to_dict('records')
-    result_data = []
-
-    for datum in data:
-        result_data.append(datum.get('pos_no'))
-
-    return json.dumps(list(result_data))
-
-def to_json_custom_seq(group): #seq 
-    data = group.to_dict('records')
-    result_data = []
-
-    for datum in data:
-        result_data.append(datum.get('seq_no'))
-
-    return json.dumps(list(result_data))
-
-def to_json_custom_seq(group): #seq 
-    data = group.to_dict('records')
-    result_data = []
-
-    for datum in data:
-        result_data.append(datum.get('seq_no'))
-
-    return json.dumps(list(result_data))
+grouped = order_df.groupby(['sale_date', 'store_code', 'pos_no', 'seq_no']).apply(
+    lambda x: pd.Series({
+        'sale_date': x['sale_date'].iloc[0],
+        'store_code': x['store_code'].iloc[0],
+        'pos_no': x['pos_no'].iloc[0],
+        'seq_no': x['seq_no'].iloc[0],
+        'st_code': x['st_code'].iloc[0],
+        'total_qnty': x['total_qnty'].iloc[0],
+        'total_sell_amnt': x['total_sell_amnt'].iloc[0],
+        'total_dscn_amnt': x['total_dscn_amnt'].sum(),
+        'total_stlmn_amnt': x['total_stlmn_amnt'].iloc[0],
+        'trade_time': x['trade_time'].iloc[0],
+        'sku_cntnt': json.dumps([{
+            "sku_no": sku['sku_no'],
+            "sku_stlmn_amnt": sku['sku_stlmn_amnt'],
+            "sku_qnty": sku['sku_qnty']
+        } for _, sku in x.iterrows()]),
+        'cpn_cntnt': json.dumps(list(x['cpn_no'])),
+        'order_dtm': x['sale_date'].iloc[0] + x['trade_time'].iloc[0]
+    })
+)
 
 
 
-order_df['store_code'] = order_group_df.apply(to_json_custom_store).drop(columns=['sale_date', 'store_code', 'pos_no', 'seq_no'])
-order_df['pos_no'] = order_group_df.apply(to_json_custom_pos).drop(columns=['sale_date', 'store_code', 'pos_no', 'seq_no'])
-order_df['seq_no'] = order_group_df.apply(to_json_custom_seq).drop(columns=['sale_date', 'store_code', 'pos_no', 'seq_no'])
-
-order_df['total_qnty'] = order_group_df.apply(to_json_custom_total_qnty).drop(columns=['sale_date', 'store_code', 'pos_no', 'seq_no'])
-order_df['total_sell_amnt'] = order_group_df.apply(to_json_custom_total_sell_amnt).drop(columns=['sale_date', 'store_code', 'pos_no', 'seq_no'])
-order_df['total_dscn_amnt'] = order_group_df.apply(to_json_custom_total_dscn_amnt).drop(columns=['sale_date', 'store_code', 'pos_no', 'seq_no'])
-order_df['total_stlmn_amnt'] = order_group_df.apply(to_json_custom_total_stlmn_amnt).drop(columns=['sale_date', 'store_code', 'pos_no', 'seq_no'])
-
-order_df['sku_cntnt'] = order_group_df.apply(to_json_custom_sku).drop(columns=['sale_date', 'store_code', 'pos_no', 'seq_no'])
-order_df['cpn_cntnt'] = order_group_df.apply(to_json_custom_cpn).drop(columns=['sale_date', 'store_code', 'pos_no', 'seq_no'])
-order_df['order_dtm'] = order_df['sale_date'] + order_df['trade_time']
+for index, data in grouped.iterrows():
+    print(f"{data['sale_date']}|{data['store_code']}|{data['pos_no']}|{data['seq_no']}|{data['sku_cntnt']}\n")
+     
 
 
-pre_result_df = order_df[result_columns]
-
-
-print("\n<<<pre_result_df>>>")
-pre_result_df.info()
-
-#하나 이상의 결측값을 포함하는 모든 행 확인
-#['sale_date','order_dtm'] 1546개의 두 컬럼을 제외한 DataFrame 살펴봤을 때 모두 Null 값 확인 -> 두 컬럼과 나머지 컬럼 교집합
-Test_DataFrame = pre_result_df[pre_result_df.isna( ).any(axis=1)]
-Test_DataFrame = Test_DataFrame.drop(['sale_date','order_dtm'], axis=1) 
-print("\n\n<<<Test_DataFrame>>>")
-Test_DataFrame.info() #All Null
-
-
-
-#['sale_date','order_dtm'] 컬럼과 나머지 컬럼 교집합
-result_df = pre_result_df.dropna(axis=0)
-print("\n\n<<<result_df>>>")
-result_df.info() #All Columns's Row : 622
-
-for index, data in result_df.iterrows():
-    print(f"{data['sale_date']}|{data['store_code']}|{data['pos_no']}|{data['seq_no']}|{data['sku_cntnt']}") 
-
-
-"""
-
-{'sale_date': '20240318', 'store_code': '4089', 'pos_no': '03', 'seq_no': '0025', 'st_code': nan, 'total_qnty': 3, 'total_sell_amnt': 68500, 'total_dscn_amnt': 0, 'total_stlmn_amnt': 68500, 'trade_time': '102417', 'sku_cntnt': '[{"sku_no": "0008015010023", "sku_stlmn_amnt": 2500, "sku_qnty": 1}, {"sku_no": "9300000001745", "sku_stlmn_amnt": 33000, "sku_qnty": 1}, {"sku_no": "9300000001748", "sku_stlmn_amnt": 33000, "sku_qnty": 1}]', 'cpn_cntnt': '["0", "0", "0"]', 'order_dtm': '20240318102417'},
-
-
-"""
+# #전체 조회
+# for index, data in grouped.iterrows():
+#     print(f"{data['sale_date']}|{data['store_code']}|{data['pos_no']}|{data['seq_no']}|{data['st_code']}|{data['total_qnty']}|{data['total_sell_amnt']}|{data['total_dscn_amnt']}|{data['total_stlmn_amnt']}|{data['trade_time']}|{data['sku_cntnt']}|{data['cpn_cntnt']}|{data['order_dtm']}\n")
+    

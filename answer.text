@@ -18,3 +18,29 @@
 key를 기준으로 집계하면 될듯 how? 
 
 """
+
+import pandas as pd
+
+# CSV 파일 경로
+csv_file_path = 'example.csv'
+
+# CSV 파일을 DataFrame으로 로드
+df = pd.read_csv(csv_file_path)
+
+# 그룹화하여 예상 결과 생성
+grouped_df = df.groupby(['sale_date', 'store_code', 'pos_no', 'seq_no']).agg({
+    'st_code': 'first',
+    'total_qnty': 'sum',
+    'total_sell_amnt': 'sum',
+    'total_dscn_amnt': 'sum',
+    'total_stlmn_amnt': 'sum',
+    'trade_time': 'first',
+    'sku_no': lambda x: x.tolist(),
+    'sku_stlmn_amnt': lambda x: x.tolist(),
+    'sku_qnty': lambda x: x.tolist(),
+    'cpn_no': lambda x: x.tolist(),
+    'order_dtm': 'first'
+}).reset_index()
+
+# 그룹화된 결과 출력
+print(grouped_df.to_dict(orient='records'))

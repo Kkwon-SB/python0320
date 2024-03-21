@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import json
 
-order_df = pd.read_csv('test.csv')
+order_df = pd.read_csv('test2.csv')
 
 order_df['sku_qnty'] = order_df['sku_qnty'].fillna(0)
 order_df['sku_stlmn_amnt'] = order_df['sku_stlmn_amnt'].fillna(0)
@@ -43,5 +43,8 @@ grouped = order_df.groupby(['sale_date', 'store_code', 'pos_no', 'seq_no']).appl
     }
 )
 
-for key, value in grouped.items():
-    print(value)
+# 딕셔너리를 데이터프레임으로 변환
+grouped_df = pd.DataFrame(list(grouped.values()))
+
+# 데이터프레임 출력
+print(grouped_df)
